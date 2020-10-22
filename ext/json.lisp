@@ -39,7 +39,7 @@
   data format with metadata, simple (string) messages have structures
   that resemble {'message': <value>}"))
 
-(defmethod format-message ((logger base-journal) (fmt json-metadata-formatter) (message grip.message:structured-message))
+(defmethod grip.logger:format-message ((logger base-journal) (fmt json-metadata-formatter) (message grip.message:structured-message))
   (let ((data (resolve-output fmt message))
 	(ts (local-time:format-timestring nil (grip.message:message-timestamp message) :format local-time:+rfc3339-format+))
 	(level (grip.level:priority-value (grip.message:message-level message)))
@@ -67,7 +67,7 @@
 	 (push (cons "metadata" mdal) data)
 	 (cl-json:encode-json-alist-to-string data))))))
 
-(defmethod format-message ((logger base-journal) (fmt json-metadata-formatter) (message grip.message:simple-message))
+(defmethod grip.logger:format-message ((logger base-journal) (fmt json-metadata-formatter) (message grip.message:simple-message))
   (let ((ts (local-time:format-timestring nil (grip.message:message-timestamp message) :format local-time:+rfc3339-format+))
 	(level (grip.level:priority-value (grip.message:message-level message)))
 	(logger-name (name logger))
@@ -81,14 +81,14 @@
     (push (cons "message" (resolve-output fmt message)) data)
     (cl-json:encode-json-alist-to-string data)))
 
-(defmethod format-message ((logger base-journal) (fmt json-simple-formatter) (message grip.message:structured-message))
+(defmethod grip.logger:format-message ((logger base-journal) (fmt json-simple-formatter) (message grip.message:structured-message))
   (let ((data (resolve-output fmt message)))
     (typecase data
       (hash-table (cl-json:encode-json-to-string data))
       (property-list (cl-json:encode-json-plist-to-string data))
       (association-list (cl-json:encode-json-alist-to-string data)))))
 
-(defmethod format-message ((logger base-journal) (fmt json-simple-formatter) (message grip.message:simple-message))
+(defmethod grip.logger:format-message ((logger base-journal) (fmt json-simple-formatter) (message grip.message:simple-message))
   (let ((data '()))
     (push (cons "message" (resolve-output fmt message)) data)
   (cl-json:encode-json-alist-to-string data)))
